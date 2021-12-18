@@ -4,6 +4,14 @@ package proto;
 
 option go_package = "./;proto";
 
+message PingCacheReq {
+
+}
+
+message PingCacheRes {
+    bool ok = 1;
+}
+
 message GetCacheReq {
     string key = 1;
 }
@@ -23,6 +31,7 @@ message SetCacheRes {
 }
 
 service Cache {
+    rpc Ping(PingCacheReq) returns(PingCacheRes) {}
     rpc Get(GetCacheReq) returns(GetCacheRes) {}
     rpc Set(SetCacheReq) returns(SetCacheRes) {}
 }

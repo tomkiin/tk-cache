@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CacheClient interface {
+	Ping(ctx context.Context, in *PingCacheReq, opts ...grpc.CallOption) (*PingCacheRes, error)
 	Get(ctx context.Context, in *GetCacheReq, opts ...grpc.CallOption) (*GetCacheRes, error)
 	Set(ctx context.Context, in *SetCacheReq, opts ...grpc.CallOption) (*SetCacheRes, error)
 }
@@ -28,6 +29,15 @@ type cacheClient struct {
 
 func NewCacheClient(cc grpc.ClientConnInterface) CacheClient {
 	return &cacheClient{cc}
+}
+
+func (c *cacheClient) Ping(ctx context.Context, in *PingCacheReq, opts ...grpc.CallOption) (*PingCacheRes, error) {
+	out := new(PingCacheRes)
+	err := c.cc.Invoke(ctx, "/proto.Cache/Ping", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *cacheClient) Get(ctx context.Context, in *GetCacheReq, opts ...grpc.CallOption) (*GetCacheRes, error) {
@@ -52,6 +62,7 @@ func (c *cacheClient) Set(ctx context.Context, in *SetCacheReq, opts ...grpc.Cal
 // All implementations must embed UnimplementedCacheServer
 // for forward compatibility
 type CacheServer interface {
+	Ping(context.Context, *PingCacheReq) (*PingCacheRes, error)
 	Get(context.Context, *GetCacheReq) (*GetCacheRes, error)
 	Set(context.Context, *SetCacheReq) (*SetCacheRes, error)
 	mustEmbedUnimplementedCacheServer()
@@ -61,6 +72,9 @@ type CacheServer interface {
 type UnimplementedCacheServer struct {
 }
 
+func (UnimplementedCacheServer) Ping(context.Context, *PingCacheReq) (*PingCacheRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
 func (UnimplementedCacheServer) Get(context.Context, *GetCacheReq) (*GetCacheRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
@@ -78,6 +92,24 @@ type UnsafeCacheServer interface {
 
 func RegisterCacheServer(s grpc.ServiceRegistrar, srv CacheServer) {
 	s.RegisterService(&Cache_ServiceDesc, srv)
+}
+
+func _Cache_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingCacheReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CacheServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Cache/Ping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CacheServer).Ping(ctx, req.(*PingCacheReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Cache_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -123,6 +155,10 @@ var Cache_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.Cache",
 	HandlerType: (*CacheServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Ping",
+			Handler:    _Cache_Ping_Handler,
+		},
 		{
 			MethodName: "Get",
 			Handler:    _Cache_Get_Handler,
