@@ -22,7 +22,9 @@ func (g *group) register(c *gin.Context) {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 
-	g.nodes[req["ip"]] = true
+	ip := req["ip"]
+	g.nodes[ip] = true
+	g.consistent.Add(ip)
 
 	httpx.RenderOK(c)
 }
@@ -52,6 +54,7 @@ func (g *group) pingNode(ip string) {
 	res, err := client.Ping(context.TODO(), &pb.PingReq{})
 	if err != nil || !res.Ok {
 		g.nodes[ip] = false
+		g.consistent.Del(ip)
 		log.Printf("ping node: %s failed\n", ip)
 		return
 	} else {
