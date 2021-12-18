@@ -26,8 +26,8 @@ func (n *node) Register() error {
 	return nil
 }
 
-func (n *node) Ping(ctx context.Context, req *pb.PingReq) (*pb.PingRes, error) {
-	return &pb.PingRes{Ok: true}, nil
+func (n *node) Ping(ctx context.Context, req *pb.PingCacheReq) (*pb.PingCacheRes, error) {
+	return &pb.PingCacheRes{Ok: true}, nil
 }
 
 func (n *node) Get(ctx context.Context, req *pb.GetCacheReq) (*pb.GetCacheRes, error) {

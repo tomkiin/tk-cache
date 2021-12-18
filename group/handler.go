@@ -6,7 +6,6 @@ import (
 	"time"
 	"tk-cache/pkg/httpx"
 	pb "tk-cache/pkg/proto"
-	"tk-cache/pkg/rpcx"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,12 +18,8 @@ func (g *group) register(c *gin.Context) {
 		return
 	}
 
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
 	ip := req["ip"]
-	g.nodes[ip] = true
-	g.consistent.Add(ip)
+	g.manager.registerNode(ip)
 
 	httpx.RenderOK(c)
 }
@@ -34,29 +29,24 @@ func (g *group) PingNode() {
 	ticker := time.NewTicker(10 * time.Second)
 
 	for {
-		for ip := range g.nodes {
+		for ip := range g.manager.nodes {
 			go g.pingNode(ip)
 		}
+
 		<-ticker.C
 	}
 }
 
 func (g *group) pingNode(ip string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	client, err := rpcx.NewHealthClient(ip + ":8090")
+	client, err := g.manager.pickNode(ip)
 	if err != nil {
-		g.nodes[ip] = false
-		return
+		g.manager.removeNode(ip)
 	}
 
-	res, err := client.Ping(context.TODO(), &pb.PingReq{})
+	res, err := client.Ping(context.TODO(), &pb.PingCacheReq{})
 	if err != nil || !res.Ok {
-		g.nodes[ip] = false
-		g.consistent.Del(ip)
+		g.manager.removeNode(ip)
 		log.Printf("ping node: %s failed\n", ip)
-		return
 	} else {
 		log.Printf("ping node: %s ok\n", ip)
 	}

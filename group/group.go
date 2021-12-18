@@ -2,24 +2,19 @@ package group
 
 import (
 	"log"
-	"sync"
-	"tk-cache/pkg/hash"
 
 	"github.com/gin-gonic/gin"
 )
 
+// 分布式缓存调度器
 type group struct {
-	mu         *sync.RWMutex
-	nodes      map[string]bool
-	consistent *hash.Consistent
-	router     *gin.Engine
+	manager *manager
+	router  *gin.Engine
 }
 
 func New(replicas int) *group {
 	g := &group{
-		mu:         new(sync.RWMutex),
-		nodes:      make(map[string]bool),
-		consistent: hash.NewConsistent(replicas, nil),
+		manager: newManager(replicas),
 	}
 
 	router := gin.Default()
