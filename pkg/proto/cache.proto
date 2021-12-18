@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./;proto";
+
+message GetCacheReq {
+    string key = 1;
+}
+
+message GetCacheRes {
+    bytes value = 1;
+    bool ok = 2;
+}
+
+message SetCacheReq {
+    string key = 1;
+    bytes value = 2;
+}
+
+message SetCacheRes {
+
+}
+
+service Cache {
+    rpc Get(GetCacheReq) returns(GetCacheRes) {}
+    rpc Set(SetCacheReq) returns(SetCacheRes) {}
+}
