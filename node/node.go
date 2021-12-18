@@ -1,7 +1,6 @@
 package node
 
 import (
-	"context"
 	"log"
 	"net"
 	"sync"
@@ -24,24 +23,6 @@ func New(maxSize int) *node {
 		mu:  new(sync.Mutex),
 		lru: cache.NewLRU(maxSize),
 	}
-}
-
-func (n *node) Get(ctx context.Context, req *pb.GetCacheReq) (*pb.GetCacheRes, error) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-
-	value, ok := n.lru.Get(req.Key)
-
-	return &pb.GetCacheRes{Value: value, Ok: ok}, nil
-}
-
-func (n *node) Set(ctx context.Context, req *pb.SetCacheReq) (*pb.SetCacheRes, error) {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-
-	n.lru.Set(req.Key, req.Value)
-
-	return &pb.SetCacheRes{}, nil
 }
 
 func (n *node) StartRPC() {
