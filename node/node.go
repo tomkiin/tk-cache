@@ -12,7 +12,9 @@ import (
 
 // 缓存节点
 type node struct {
-	pb.UnimplementedCacheServer // 升级成 grpc 服务器
+	// 升级成 grpc 服务器
+	pb.UnimplementedCacheServer
+	pb.UnimplementedHealthServer
 
 	mu  *sync.Mutex // 确保并发安全
 	lru *cache.LRU
@@ -35,6 +37,7 @@ func (n *node) StartRPC() {
 	s := grpc.NewServer()
 	// 注册 grpc 服务
 	pb.RegisterCacheServer(s, n)
+	pb.RegisterHealthServer(s, n)
 
 	if err := s.Serve(l); err != nil {
 		log.Fatalln("start rpc server err:", err)

@@ -3,7 +3,6 @@ package group
 import (
 	"log"
 	"sync"
-	"tk-cache/pkg/httpx"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,15 +30,4 @@ func (g *group) StartHTTP() {
 	if err := g.router.Run(":8080"); err != nil {
 		log.Fatalln("start http server err:", err)
 	}
-}
-
-func (g *group) register(c *gin.Context) {
-	ip := c.PostForm("ip")
-
-	g.mu.Lock()
-	defer g.mu.Unlock()
-
-	g.nodes[ip] = true
-
-	httpx.RenderOK(c)
 }
