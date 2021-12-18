@@ -16,3 +16,7 @@ type response struct {
 func RenderOK(c *gin.Context) {
 	c.JSON(http.StatusOK, &response{Code: 0, Message: "ok"})
 }
+
+func RenderErr(c *gin.Context, err error) {
+	c.JSON(http.StatusOK, &response{Code: 0, Message: err.Error()})
+}
