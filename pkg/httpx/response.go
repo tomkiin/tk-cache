@@ -17,6 +17,10 @@ func RenderOK(c *gin.Context) {
 	c.JSON(http.StatusOK, &response{Code: 0, Message: "ok"})
 }
 
+func RenderData(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, &response{Code: 0, Message: "ok", Data: data})
+}
+
 func RenderErr(c *gin.Context, err error) {
-	c.JSON(http.StatusOK, &response{Code: 0, Message: err.Error()})
+	c.JSON(http.StatusOK, &response{Code: -1, Message: err.Error()})
 }

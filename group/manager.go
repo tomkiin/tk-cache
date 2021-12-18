@@ -41,13 +41,26 @@ func (m *manager) removeNode(ip string) {
 	m.consistent.Del(ip)
 }
 
-// 选择节点客户端
-func (m *manager) pickNode(ip string) (pb.CacheClient, error) {
+// 根据 ip 获取对应的节点客户端
+func (m *manager) getNode(ip string) (pb.CacheClient, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	if !m.nodes[ip] {
-		return nil, fmt.Errorf("node: %s not registered")
+		return nil, fmt.Errorf("node: %s not registered", ip)
+	}
+
+	return rpcx.NewCacheClient(ip + ":8090")
+}
+
+// 根据一致性哈希获取对应的节点客户端
+func (m *manager) pickNode(key string) (pb.CacheClient, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	ip := m.consistent.Get(key)
+	if !m.nodes[ip] {
+		return nil, fmt.Errorf("node: %s not registered", ip)
 	}
 
 	return rpcx.NewCacheClient(ip + ":8090")
