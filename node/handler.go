@@ -28,7 +28,7 @@ func (n *node) Register(ip string) error {
 		return err
 	}
 
-	log.Printf("register ip: %s ok\n", ip)
+	log.Printf("register ip: %s ok\n", localIP)
 	return nil
 }
 
