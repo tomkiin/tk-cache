@@ -100,11 +100,14 @@ func (g *group) pingNode(ip string) {
 	client, err := g.manager.getNode(ip)
 	if err != nil {
 		g.manager.removeNode(ip)
+		log.Printf("ping node: %s failed: %s\n", ip, err)
+		return
 	}
 
 	res, err := client.Ping(ctx, &pb.PingCacheReq{})
 	if err != nil || !res.Ok {
 		g.manager.removeNode(ip)
-		log.Printf("ping node: %s failed\n", ip)
+		log.Printf("ping node: %s failed: %s\n", ip, err)
+		return
 	}
 }

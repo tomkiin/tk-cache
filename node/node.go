@@ -36,6 +36,7 @@ func (n *node) StartRPC() {
 	// 注册 grpc 服务
 	pb.RegisterCacheServer(s, n)
 
+	log.Println("listening rpc server at: 8090")
 	if err := s.Serve(l); err != nil {
 		log.Fatalln("start rpc server err:", err)
 	}
