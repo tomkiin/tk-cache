@@ -106,7 +106,5 @@ func (g *group) pingNode(ip string) {
 	if err != nil || !res.Ok {
 		g.manager.removeNode(ip)
 		log.Printf("ping node: %s failed\n", ip)
-	} else {
-		log.Printf("ping node: %s ok\n", ip)
 	}
 }
