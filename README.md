@@ -2,7 +2,7 @@
 Go 实现内存型分布式缓存，基于 lru 缓存淘汰算法和一致性 hash 算法
 
 # 架构图
-![image](https://raw.github.com/tomkiin/repositpry/master/tk-cache/doc/architecture.jpg)
+![image](https://raw.githubusercontent.com/tomkiin/tk-cache/main/doc/architecture.jpg)
 
 架构设计为两层结构，node 为缓存节点，group 为控制节点；
 ### NODE
