@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"log"
 	"sync"
 	"tk-cache/pkg/hash"
 	pb "tk-cache/pkg/proto"
@@ -59,6 +60,7 @@ func (m *manager) pickNode(key string) (pb.CacheClient, error) {
 	defer m.mu.Unlock()
 
 	ip := m.consistent.Get(key)
+	log.Println("pick node:", ip)
 	if !m.nodes[ip] {
 		return nil, fmt.Errorf("node: %s not registered", ip)
 	}

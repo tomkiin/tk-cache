@@ -1,9 +1,20 @@
 package main
 
-import "tk-cache/group"
+import (
+	"flag"
+	"tk-cache/group"
+)
+
+var replicas int
+
+func init() {
+	flag.IntVar(&replicas, "replicas", 3, "consistent hash virtual replicas")
+}
 
 func main() {
-	g := group.New(3)
+	flag.Parse()
+
+	g := group.New(replicas)
 	go g.PingNode()
 	g.StartHTTP()
 }
