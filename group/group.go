@@ -4,17 +4,20 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/sync/singleflight"
 )
 
 // 分布式缓存调度器
 type group struct {
 	manager *manager
+	loader  *singleflight.Group // 防止缓存击穿
 	router  *gin.Engine
 }
 
 func New(replicas int) *group {
 	g := &group{
 		manager: newManager(replicas),
+		loader:  new(singleflight.Group),
 	}
 	g.newRouter()
 

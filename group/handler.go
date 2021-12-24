@@ -43,13 +43,16 @@ func (g *group) getCache(c *gin.Context) {
 		httpx.RenderErr(c, err)
 		return
 	}
-
-	res, err := client.Get(ctx, &pb.GetCacheReq{Key: key})
+	// 使用 singleflight 机制防止缓存击穿
+	view, err, _ := g.loader.Do(key, func() (interface{}, error) {
+		return client.Get(ctx, &pb.GetCacheReq{Key: key})
+	})
 	if err != nil {
 		httpx.RenderErr(c, err)
 		return
 	}
 
+	res := view.(*pb.GetCacheRes)
 	if !res.Ok {
 		httpx.RenderErr(c, fmt.Errorf("key: \"%s\" is not existed", key))
 		return
